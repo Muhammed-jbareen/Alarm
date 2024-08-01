@@ -1,206 +1,72 @@
+/**
+ * @file Alarm.h
+ * @brief A library for handling alarms with optional result handling.
+ * 
+ * @authors
+ * - Muhammed Jbareen
+ *
+ * @license MIT License
+ * @copyright
+ * Copyright (c) 2024 Muhammed Jbareen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "Alarm.h"
+
 Alarm::Alarm() {
-    isDelayActive = false;
-    isDone = false;
+    activateTimerFirstTime = false;
+    isTimerActivated = false;
 }
-bool Alarm::setAlarm(void (*sleep)(), float delay) {
-    if (!isDone && isDelayActive)
+
+
+bool Alarm::wakeAlarmUp(float delay) {
+
+    // If timer activated for the first time, the starting point is saved in the variable previousMillis.
+    if (activateTimerFirstTime)
         previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            sleep();
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-bool Alarm::setAlarm(void* (*sleep)(), float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            sleep();
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-bool Alarm::setAlarm(int (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
-bool Alarm::setAlarm(double (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
-bool Alarm::setAlarm(bool (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
-bool Alarm::setAlarm(char (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
-bool Alarm::setAlarm(String (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
-bool Alarm::setAlarm(long (*sleep)(), float delay) {
-    setAlarm(reinterpret_cast<void* (*)()>(sleep), delay);
-}
 
-bool Alarm::setAlarm(void (*sleep)(void*), void* args, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
+    /** 
+     *  If timer is activated for the first time, the flag that indicates that the timer is activated for the first time is set to false,
+     *  and the flag that the alarm is triggered is set to true.
+    */
+    if (activateTimerFirstTime) {
+        isTimerActivated = true;
+        activateTimerFirstTime = false;
+    }
+    
+    /**
+     * If timer is activated, the code inside the if statement checks if the timer ended, if it ended, it turns of the isTimerActivated flag and 
+     * the function returns true, otherwise, the function returns false.
+     * 
+    */
+    if (isTimerActivated) {
+        bool isAlarmUp = (millis() - previousMillis) >= static_cast<unsigned long>(delay * 1000);
 
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            sleep(args);
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
+        if(isAlarmUp) 
+            isTimerActivated = false;
+
+        return isAlarmUp;
+    }  
+    return false;
 }
-
-
-bool Alarm::setAlarm(int (*sleep)(void*), void* args, int* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                 int (*sleep2)() = reinterpret_cast<int (*)()>(sleep);
-                 *result = sleep2();
-            }
-
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-
-bool Alarm::setAlarm(String (*sleep)(void*), void* args, String* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                String (*sleep2)() = reinterpret_cast<String (*)()>(sleep);
-                *result = sleep2();
-            }
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-
-bool Alarm::setAlarm(double (*sleep)(void*), void* args, double* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                double (*sleep2)() = reinterpret_cast<double (*)()>(sleep);
-                *result = sleep2();
-            }
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-
-bool Alarm::setAlarm(char (*sleep)(void*), void* args, char* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                char (*sleep2)() = reinterpret_cast<char (*)()>(sleep);
-                *result = sleep2();
-            }
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-bool Alarm::setAlarm(bool (*sleep)(void*), void* args, bool* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                bool (*sleep2)() = reinterpret_cast<bool (*)()>(sleep);
-                *result = sleep2();
-            }
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-bool Alarm::setAlarm(long (*sleep)(void*), void* args, long* result, float delay) {
-    if (!isDone && isDelayActive)
-        previousMillis = millis();
-    if (isDelayActive)
-        isDone = true;
-
-    if (isDone) {
-        if (millis() - previousMillis >= (unsigned long)(delay * 1000) ) {
-            if( args != nullptr )
-                *result = sleep(args);
-            else {
-                long (*sleep2)() = reinterpret_cast<long (*)()>(sleep);
-                *result = sleep2();
-            }
-            isDone = false;
-            isDelayActive = false;
-            return true;
-        }   
-  }
-  return false;
-}
-
 void Alarm::activate() {
-    isDelayActive = true;
+    activateTimerFirstTime = true;
 }
+
