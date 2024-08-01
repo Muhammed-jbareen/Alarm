@@ -26,7 +26,7 @@ void loop() {
 
   /** 
   for example, we want to activate the timer after some condition happens.
-  so let's take a counter and for example when that counter reaches a certain
+  so let's take a counter and when that counter reaches a certain
   number we want to move the servo to a position and we want it to be detached after two seconds
   **/
 
@@ -35,39 +35,20 @@ void loop() {
     ser.write(0);
     //When activating the timer exactly after the delay passes the detach function will be called
     timer.activate();
-    Serial.print("Servo will be detached after ");
-    Serial.print(DELAY);
-    Serial.println(" seconds");  
+    Serial.println("Servo will be detached after " + String(DELAY) + " seconds");
   }
 
   if(counter == 8) {
     ser.attach(SERVO_PIN);
     ser.write(90);
     timer.activate();
-    Serial.print("Servo will be detached after ");
-    Serial.print(DELAY);
-    Serial.println(" seconds");  
+    Serial.println("Servo will be detached after " + String(DELAY) + " seconds");
   }
   if(counter == 16) {
     ser.attach(SERVO_PIN);
     ser.write(180);
     timer.activate();
-    Serial.print("Servo will be detached after ");
-    Serial.print(DELAY);
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    Serial.println(" seconds");  
+    Serial.println("Servo will be detached after " + String(DELAY) + " seconds");
   }
 
   counter++;
